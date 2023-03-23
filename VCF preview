@@ -1,0 +1,39 @@
+#Individuals in the VCF file 
+> indNames(aa.genlight)
+ [1] "BNK_21"  "CHA_1"   "CHA_2"   "IAB_1"  
+ [5] "JOR_1"   "JOR_12"  "JOR_13"  "JOR_3"  
+ [9] "LAB_004" "LAB_1"   "LAB_2"   "LAB_300"
+[13] "LAB_4"   "LAB_400" "LAB_5"   "LAB_500"
+[17] "NEN_001" "NEN_003" "NEN_200" "NEN_300"
+[21] "NEN_4"   "NEN_5"   "NEN_6"   "ODN_10" 
+[25] "ODN_2"   "ODN_4"   "ODN_5"   "ODN_6"  
+[29] "ODN_7"   "ODN_9"   "RUZ_001" "SAL_003"
+[33] "SAL_004" "SAL_006" "VEG_003" "VEG_004"
+[37] "WOL_002" "WOL_006" "WOL_009" "WOL_010"
+
+
+#Population assignment 
+> pop(aa.genlight)
+ [1] BNK CHA CHA IAB JOR JOR JOR JOR LAB LAB
+[11] LAB LAB LAB LAB LAB LAB NEN NEN NEN NEN
+[21] NEN NEN NEN ODN ODN ODN ODN ODN ODN ODN
+[31] RUZ SAL SAL SAL VEG VEG WOL WOL WOL WOL
+11 Levels: BNK CHA IAB JOR LAB NEN ODN ... WOL
+
+#general facts about the VCF 
+> aa.genlight
+ /// GENLIGHT OBJECT /////////
+
+ // 40 genotypes,  152,778 binary SNPs, size: 16.1 Mb
+ 145150 (2.38 %) missing data
+
+ // Basic content
+   @gen: list of 40 SNPbin
+
+ // Optional content
+   @ind.names:  40 individual labels
+   @loc.names:  152778 locus labels
+   @chromosome: factor storing chromosomes of the SNPs
+   @position: integer storing positions of the SNPs
+   @pop: population of each individual (group size range: 1-8)
+   @other: a list containing: elements without names 
