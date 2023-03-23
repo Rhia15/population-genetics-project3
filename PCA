@@ -1,0 +1,19 @@
+######PRINCIPLE COMPONENT ANALYSIS 
+
+pca.1 <- glPca(aa.genlight, nf=300, n.cores=1)
+
+#Proportion of explained variance by the first three axes 
+pca.1$eig[1]/sum(pca.1$eig) #first axis 
+pca.1$eig[2]/sum(pca.1$eig) #second axis 
+pca.1$eig[3]/sum(pca.1$eig) #third axis 
+
+####results 
+
+Browse[1]> pca.1$eig[1]/sum(pca.1$eig) #first axis 
+[1] 0.1488128
+Browse[1]> pca.1$eig[2]/sum(pca.1$eig) #second axis 
+[1] 0.102109
+Browse[1]> pca.1$eig[3]/sum(pca.1$eig)
+[1] 0.06271588
+Browse[1]> pca.1$eig[3]/sum(pca.1$eig) #third axis 
+[1] 0.06271588
