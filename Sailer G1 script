@@ -1,0 +1,14 @@
+
+#command line arguments for Christian sailer G1 scripts to acquire Dxy, Fst, DD and window length histograms 
+
+#Histograms: AFD, DD, Dxy, Fst, window length 
+
+#command line arguments: 
+
+conda activate genome 
+
+python3 G1_outliers.py -coh1 LAB -coh2 NEN -i AC_tables/ -o GS_1/ 
+
+python3 G1_outliers.py -coh1 LAB -coh2 ODN -i AC_tables/ -o GS_1/
+
+python3 G1_outliers.py -coh1 NEN -coh2 ODN -i AC_tables/ -o GS_1/
