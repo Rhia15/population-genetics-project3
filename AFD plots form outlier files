@@ -1,0 +1,118 @@
+###this plot creates AFD dot plots for each candidate gene from the ourlier files generated from scantools G2
+#please change the file paths as appropriate 
+
+
+import os, sys, subprocess, statistics, argparse
+from natsort import natsorted
+import pandas as pd
+import numpy as np 
+
+#Path to genelist created with G2, e.g FstDxy 
+#open the file and read it's contents 
+#with open('/Users/rhianah/Downloads/Project_3/gatk/GS_1/LABNEN/genes/LABNEN_100SNPs_5000ppm_DxyFst_0ol.txt', 'r') as file: 
+    #file_contents = file.read()
+
+#load a gff file so we can cross reference the correct scaffolds 
+#with open('/Users/rhianah/Downloads/Project_3/reference_and_annotation/C_excelsa_V5_braker2_wRseq.gff3', 'r') as gff_file:
+    #gff_contents = gff_file.read()
+
+#link the locus on the outlier file with the scaffold on the gff file, 
+#make a loop for each locus at a time to get the correct scaffold and store information 
+#append correct AF table 
+af_dir = '/Users/rhianah/Downloads/Project_3/gatk/GS_1/LABNEN/'
+orientpath = '/Users/rhianah/Downloads/Project_3/gatk/testoriented.out'
+#define a dictionary to store the information for each locus 
+
+locus_info = {}
+
+with open('/Users/rhianah/Downloads/Project_3/gatk/GS_1/LABNEN/genes/LABNEN_100SNPs_5000ppm_DxyFst_0olfilter.txt', 'r') as gene_file:
+    for line in gene_file: 
+        locus = line.strip()
+        ttline = line.replace('\n', '')
+        tline =str('"'+ttline+'"')
+        print(tline)
+
+        with open('/Users/rhianah/Downloads/Project_3/reference_and_annotation/C_excelsa_V5_braker2_wRseq.gff3', 'r') as gff_file:
+            for gff_line in gff_file: 
+                if gff_line.startswith('#'):
+                    continue 
+
+                    #split GFF line into columns 
+                columns = gff_line.split('\t')
+                
+
+                if 'ID=' + locus in columns[8]: 
+                    scaffold = columns[0]
+                    col =str('"'+scaffold+'"')
+                    print(col)
+                        
+                    print('Gene ' + locus + ' is located on scaffold ' +scaffold)
+                    af_filename = f'{scaffold}.table'
+                    af_path = os.path.join(af_dir, af_filename)
+                    print(af_path)
+
+                    break 
+            else: 
+                print('error:could not find gene' + locus)
+
+        rfile = open('/Users/rhianah/Downloads/Project_3/gatk/GS_1/LABNEN/'+tline+'fstdxy.r', 'w')
+        rfile.write('# load libraries\n'+
+                        'library(ggplot2)\n'+
+                        'library(grid)\n'+
+                        'library(grid)\n'+
+                        'f <- read.table("'+orientpath+'",header=F)\n'+
+                        'locus='+tline+'\n'+
+                        'winsize = 50000\n'+
+                        'graphwindow <- winsize/1000*2\n'+
+                        'locstart <- subset(f[,3] , as.vector(f[,1])==locus)\n'+
+                        'locend <- subset(f[,4], as.vector(f[,1])==locus)\n'+
+                        'middle=(locend+locstart)/2\n'+
+                        'locstart <- subset(f[,3] , as.vector(f[,1])==locus)\n'+
+                        'locend <- subset(f[,4], as.vector(f[,1])==locus)\n'+
+                        'middle=(locend+locstart)/2\n'+
+                        'start=middle-winsize\n'+
+                        'end=middle+winsize\n'+
+                        'genes=subset(f, (f[,2]=='+col+' & f[,3]>=start & f[,3]<=end) | (f[,2]=='+col+' & f[,4]>=start & f[,4]<=end))\n'+
+                        'genes$geneor <- ifelse(genes[,5]=="+","last","first")\n\n'+
+                        'scaf <- read.table("'+af_path+'", header=T)\n'
+                        'scaf$rawAFD_2 <- scaf$AC1/scaf$AN1 - scaf$AC2/scaf$AN2\n'+
+                        'scaf_sub <- scaf[scaf$POS >= start & scaf$POS <=end,]\n\n'+
+                        '# switch to R only here\n'+
+                        'layout <- theme_bw(base_size=10, base_family="Helvetica") +\n'+
+                        '   theme(axis.title.x = element_blank(),\n'+
+                        '   axis.text.x = element_blank(),\n'+
+                        '   axis.ticks.x = element_blank(),\n'+
+                        '   panel.grid = element_blank())\n\n'+
+                        'layouttix <- theme_bw(base_size=10, base_family="Helvetica") +\n'+
+                        '   theme(axis.title.x = element_blank(),\n'+
+                        '   panel.grid = element_blank())\n\n'+
+                        'pafds <- ggplot(aes(POS, rawAFD_2), data=scaf_sub) + ylab("AFDsnp") +\n'+
+                        '   ggtitle(locus) +\n'+
+                        '   scale_y_continuous(limits=c(-1,1.1)) +\n'+
+                        '   geom_point(alpha=0.35, size=1) +\n'+
+                        '   theme_bw()\n'+
+                        'for(j in 1:nrow(genes)){\n'+
+                        '   pafds <- pafds + geom_segment(x=genes[j,3], xend=genes[j,4], y=1.1, yend=1.1, colour="grey30",\n'+
+                        '   arrow=arrow(length=unit(0.02,"npc"), ends=genes[j,"geneor"]))\n'+
+                        '}\n'+
+                        'p.AFDs <- pafds  + geom_segment(x=genes[which(genes[,1]==locus), 3],\n'+
+                        '   xend=genes[which(genes[,1]==locus), 4], y=1.1, yend=1.1, color="red", arrow=arrow(length=unit(0.03, "npc"),\n'+
+                        '   ends=genes[which(genes[,1]==locus),"geneor"]))\n\n'
+                        'pdf("/Users/rhianah/Downloads/Project_3/gatk/GS_1/LABNEN/'+locus+'_LABNEN.pdf", width=4, height=8)\n'+
+                        'grid.newpage()\n'+
+                        'pushViewport(viewport(layout = grid.layout(6,1)))\n'+
+                        '# define number of columns and rows for the graph #\n'+
+                        'vplayout <- function(x,y)\n'+
+                        '   viewport(layout.pos.row=x,layout.pos.col=y)\n'+
+                        '# specifiy which plot goes where #\n'+
+                        'print(p.AFDs, vp=vplayout(1:2,1))\n'+
+                        'dev.off()')
+
+        rfile.close()
+        cmd = ('Rscript /Users/rhianah/Downloads/Project_3/gatk/GS_1/LABNEN/'+tline+'fstdxy.r')
+        p = subprocess.Popen(cmd, shell=True)
+        sts = os.waitpid(p.pid, 0)[1]
+
+
+
+print('graphs made')
