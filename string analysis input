@@ -1,5 +1,6 @@
 #This script outputs a file with the A.thaliana orthologs for the list of genes in a text file 
 #Input for the STRING analysis 
+#change file path as appropriate 
 
 #file containing all the genes from the orientated file 
 
