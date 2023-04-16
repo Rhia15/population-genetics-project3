@@ -1,0 +1,16 @@
+include.list <- grep("(LAB|NEN|ODN)", indNames(aa.genlight), value = T)
+
+> aa.genlight.LABNENODN
+ /// GENLIGHT OBJECT /////////
+
+ // 22 genotypes,  152,778 binary SNPs, size: 14.2 Mb
+ 828 (0.02 %) missing data
+
+ // Basic content
+   @gen: list of 22 SNPbin
+
+ // Optional content
+   @ind.names:  22 individual labels
+   @loc.names:  152778 locus labels
+   @chromosome: factor storing chromosomes of the SNPs
+   @other: a list containing: elements without names  
