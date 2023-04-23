@@ -1,0 +1,37 @@
+#We quality filtered our VCF files before using them for the analysis 
+
+------> gatk_filter.sh <------
+#!/bin/bash
+#SBATCH --job-name=gatk_filter
+#SBATCH --partition=hpc
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=4
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=30g
+#SBATCH --time=24:00:00
+#SBATCH --output=/shared/home/mbxrs14/project_3/err_out/%x%r.out
+#SBATCH --error=/shared/home/mbxrs14/project_3/err_out/%x%r.err
+
+# These steps are required to activate conda
+source $HOME/.bash_profile
+
+gatk --java-options "-Xmx4g" VariantFiltration \
+-V /shared/home/mbxrs14/project_3/LAB_NEN_ODN.clean_BI.ann.vcf.gz \
+--filter-expression "ExcessHet > 54.69" \
+--filter-name "ExcessHet" \
+-O /shared/home/mbxrs14/project_3/gatk/cohort_excesshet.vcf.gz 
+
+
+gatk SelectVariants \
+-V /shared/home/mbxrs14/project_3/gatk/cohort_excesshet.vcf.gz \
+-select-type SNP \
+-O /shared/home/mbxrs14/project_3/gatk/snp_cohort_excesshet.vcf.gz
+
+gatk VariantFiltration \
+-V /shared/home/mbxrs14/project_3/gatk/snp_cohort_excesshet.vcf.gz \
+-filter "DP < 10" --filter-name "DP10" \
+-filter "DP > 200" --filter-name "DP200" \
+-filter "GQ < 40" --filter-name "GQ40" \
+-filter "AD < 10" --filter-name "AD10" \
+-filter "AD > 200" --filter-name "AD200" \
+-O /shared/home/mbxrs14/project_3/gatk/filt_snp_cohort_excesshet.vcf.gz
