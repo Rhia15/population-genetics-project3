@@ -1,0 +1,70 @@
+setwd("/Users/rhianah/project3")
+
+options(warn=1)
+install.packages("adegenet")
+install.packages("adegraphics")
+install.packages("pegas")
+install.packages("ggmap")
+install.packages("ggplot2")
+install.packages("StAMPP")
+install.packages("tidyverse")
+install.packages("ade4")
+
+
+yes
+library(adegenet)
+library(adegraphics) #not strictly necessary for all of this (hombrew r installs will interfere)
+library(vcfR)
+library(pegas)
+library(StAMPP)
+library(ade4)
+library(MASS)
+library(ggplot2)
+library(ape)
+library(ggmap)
+
+#check input of VCF file 
+vcf <- read.vcfR("reheadered_4dg_dips.clean_BI.ann.vcf")
+head(vcf)
+vcf@fix[1:10,1:5]
+
+
+
+
+
+#check the genlight 
+aa.genlight <- vcfR2genlight(vcf, n.cores=1)
+locNames(aa.genlight) <- paste(vcf@fix[,1],vcf@fix[,2],sep="_")
+pop(aa.genlight)<-substr(indNames(aa.genlight),1,3)
+
+aa.genlight
+dev.new()
+
+
+
+
+####   distance-based analyses  #######
+###################################################
+
+### Calculate Nei's distances between individuals/pops
+# ---------------------------------------------------
+aa.D.ind <- stamppNeisD(aa.genlight, pop = FALSE)  # Nei's 1972 distance between indivs
+stamppPhylip(aa.D.ind, file="aa.indiv_Neis_distance.phy.dst") # export matrix - for SplitsTree
+aa.D.pop <- stamppNeisD(aa.genlight, pop = TRUE)   # Nei's 1972 distance between pops
+stamppPhylip(aa.D.pop, file="aa.pops_Neis_distance.phy.dst") # export matrix - for SplitsTree
+
+
+### create the dist objects
+colnames(aa.D.ind) <- rownames(aa.D.ind) 
+aa.D.ind.dist<-as.dist(aa.D.ind, diag=T)
+attr(aa.D.ind.dist, "Labels")<-rownames(aa.D.ind)          # name the rows of a matrix  
+
+colnames(aa.D.pop) <- rownames(aa.D.pop) 
+aa.D.pop.dist<-as.dist(aa.D.pop, diag=T)
+attr(aa.D.pop.dist, "Labels")<-rownames(aa.D.pop)
+#########################
+## Plot simple NJ Tree ##
+#########################
+# plot and save NJ tree
+plot(nj(aa.D.ind))
+write.tree(nj(aa.D.ind),file="NJ.Neis.dist.tree.tre")
